@@ -1,0 +1,65 @@
+# Public IPs for edge gateways
+public_ips = {
+  "pip-bastion" = {
+    name                = "pip-bastion-dev-centralindia"
+    location            = "centralindia"
+    resource_group_name = "rg-rally-dev-centralindia"
+    allocation_method   = "Static"
+    sku                 = "Standard"
+    tags = {
+      Environment = "dev"
+      Project     = "rally-tech"
+    }
+  }
+}
+
+# Azure Bastion for zero-trust browser RDP/SSH access
+# Note: Subnet ID must point to a subnet explicitly named 'AzureBastionSubnet' (minimum /26 prefix)
+bastion_hosts = {
+  "bastion-dev" = {
+    name                = "bas-rally-dev-centralindia"
+    location            = "centralindia"
+    resource_group_name = "rg-rally-dev-centralindia"
+    sku                 = "Standard"
+    subnet_id           = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-rally-dev-centralindia/providers/Microsoft.Network/virtualNetworks/vnet-rally-dev-centralindia/subnets/AzureBastionSubnet"
+    public_ip_key       = "pip-bastion"
+    tags = {
+      Environment = "dev"
+      Project     = "rally-tech"
+    }
+  }
+}
+
+# Internal Layer 4 Load Balancer for backend microservices
+load_balancers = {
+  "ilb-backend" = {
+    name                = "ilb-rally-dev-backend"
+    location            = "centralindia"
+    resource_group_name = "rg-rally-dev-centralindia"
+    sku                 = "Standard"
+    frontend_ip_configurations = [
+      {
+        name                          = "fe-ilb-backend"
+        subnet_id                     = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-rally-dev-centralindia/providers/Microsoft.Network/virtualNetworks/vnet-rally-dev-centralindia/subnets/snet-backend"
+        private_ip_address_allocation = "Dynamic"
+      }
+    ]
+    probes = [
+      {
+        name     = "probe-http-8080"
+        protocol = "Http"
+        port     = 8080
+      }
+    ]
+    rules = [
+      {
+        name                           = "rule-http-8080"
+        protocol                       = "Tcp"
+        frontend_port                  = 8080
+        backend_port                   = 8080
+        frontend_ip_configuration_name = "fe-ilb-backend"
+        probe_name                     = "probe-http-8080"
+      }
+    ]
+  }
+}
