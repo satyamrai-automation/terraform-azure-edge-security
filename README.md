@@ -1,4 +1,4 @@
-# 🛡️ Terraform Azure Edge & Perimeter Security Module (Pillar 3)
+# 🛡️ Terraform Azure Edge & Perimeter Security Module 
 
 Production-ready Terraform child module managing Azure perimeter security, zero-trust remote access, Layer 4/7 load balancing, and network firewalls.
 
